@@ -1,10 +1,16 @@
 Vagrant.configure("2") do |config|
-  config.vm.define "test-ssh-vm" do |test|
-    test.vm.box = "ubuntu/focal64"
-    test.vm.hostname = "test-ssh-vm"
-    test.vm.network "forwarded_port", guest: 22, host: 2222, id: "ssh", disabled: false
-    test.vm.provider "virtualbox" do |vb|
-      vb.memory = "1024" # Reduz a RAM para 1GB
+  config.vm.boot_timeout = 600 # Mantenha este timeout (10 minutos)
+
+  # Define APENAS a primeira VM (app-server-1)
+  config.vm.define "app-server-1" do |app1|
+    app1.vm.box = "ubuntu/focal64" # Ubuntu 20.04 LTS
+    app1.vm.hostname = "app-server-1" # Define o hostname da VM
+
+    app1.vm.network "private_network", ip: "192.168.56.101" # IP fixo para o Ansible se conectar
+    app1.vm.network "forwarded_port", guest: 80, host: 8080 # Mapeia a porta 80 da VM para a porta 8080 do seu host local (opcional, mas bom ter)
+
+    app1.vm.provider "virtualbox" do |vb|
+      vb.memory = "1024" # Memória de 1GB
       vb.cpus = 1        # 1 CPU
       vb.gui = true      # Mostrar a interface gráfica da VM
     end
