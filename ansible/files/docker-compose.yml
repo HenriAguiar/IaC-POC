@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  express_service_1:
+    build: ./express-service-1
+    environment:
+      - SERVICE_NAME=Express Service 1
+    ports: # Expor portas para acesso direto para debug se necessário
+      - "3001:3000" # Exemplo: mapeia 3001 do host para 3000 do contêiner
+    deploy:
+      replicas: 3 # Múltiplas instâncias para balanceamento de carga interno do Docker
+      restart_policy:
+        condition: on_failure
+    networks:
+      - app_network
+
+  express_service_2:
+    build: ./express-service-2
+    environment:
+      - SERVICE_NAME=Express Service 2
+    ports:
+      - "3002:3000" # Exemplo: mapeia 3002 do host para 3000 do contêiner
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on_failure
+    networks:
+      - app_network
+
+  nginx_gateway:
+    build: ./nginx
+    ports:
+      - "80:80" # Mapeia a porta 80 da VM para a porta 80 do contêiner Nginx
+    depends_on: # Garante que os serviços Express subam antes do Nginx
+      - express_service_1
+      - express_service_2
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge

@@ -1,0 +1,30 @@
+# Terraform files
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+
+# Vagrant files
+.vagrant/
+vagrant_env/.vagrant/
+
+# Node.js (dentro da pasta files/express-service-X)
+**/node_modules/
+**/npm-debug.log
+**/yarn-error.log
+**/package-lock.json
+**/yarn.lock
+
+# Logs e arquivos temporários comuns
+*.log
+*.tmp
+*.swp
+
+# Variáveis de ambiente e arquivos de configuração sensíveis (se você os tivesse)
+*.env
+.env.*
+config.local.yml
+
+# Backups de editores
+*~
+#*#
