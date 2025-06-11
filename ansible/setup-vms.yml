@@ -1,7 +1,7 @@
 ---
 - name: Setup Docker and deploy application with Docker Compose
-  hosts: all # Aplica a todas as VMs definidas no inventory
-  become: yes # Executa as tarefas com sudo
+  hosts: all
+  become: yes
 
   tasks:
     - name: Update apt package cache
@@ -38,7 +38,22 @@
         - docker-ce-cli
         - containerd.io
         - docker-buildx-plugin
-        - docker-compose-plugin # Para o novo 'docker compose' (plugin)
+        - docker-compose-plugin
+    - name: Ensure python3-pip is installed
+      apt:
+        name: python3-pip
+        state: present
+    # NOVO PASSO: Instalar a biblioteca Python 'docker' para o Ansible
+    - name: Install Docker SDK for Python
+      ansible.builtin.pip:
+        name: docker
+        state: present
+      # O módulo pip precisa do pip instalado. Garanta que esteja lá ou instale-o antes.
+      # Se der erro, pode adicionar:
+      # - name: Ensure pip is installed
+      #   apt:
+      #     name: python3-pip
+      #     state: present
 
     - name: Add 'vagrant' user to the docker group
       user:
@@ -56,7 +71,7 @@
 
     - name: Copy application files to VMs
       copy:
-        src: files/ # Copia o conteúdo da pasta 'files'
+        src: files/
         dest: /home/vagrant/app/
         owner: vagrant
         group: vagrant
@@ -70,10 +85,10 @@
         mode: '0644'
 
     - name: Start Docker Compose application
-      command: docker compose up -d
+      command: docker compose up -d --build --force-recreate
       args:
         chdir: /home/vagrant/app
-      become: no # Executa como o usuário 'vagrant', não como root
+      become: no
       register: docker_compose_output
 
     - name: Display docker compose output
